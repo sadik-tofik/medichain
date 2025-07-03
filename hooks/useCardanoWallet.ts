@@ -64,23 +64,30 @@ export function useCardanoWallet() {
       console.log('Attempting to connect to Eternl wallet...');
       
       if (!isWalletAvailable) {
-        throw new Error('Eternl wallet not detected');
+        throw new Error('Eternl wallet not detected. Please make sure the Eternl extension is installed and enabled.');
       }
 
-      // Directly enable the wallet first
+      // Check if the wallet is already enabled
+      const isEnabled = await window.cardano?.eternl?.isEnabled?.();
+      
       console.log('Enabling Eternl wallet...');
-      const api = await window.cardano?.eternl?.enable();
-      
-      if (!api) {
-        throw new Error('Failed to enable Eternl wallet');
+      try {
+        const api = await window.cardano?.eternl?.enable();
+        
+        if (!api) {
+          throw new Error('Failed to get Eternl wallet API after enabling');
+        }
+        
+        setWalletApi(api);
+        console.log('Eternl wallet enabled, connecting with Mesh...');
+        
+        // Connect with Mesh using the Eternl wallet name
+        await connect('eternl');
+        console.log('Wallet connection successful');
+      } catch (enableError) {
+        console.error('Error enabling Eternl wallet:', enableError);
+        throw new Error(`Failed to enable Eternl wallet: ${enableError?.message || 'Unknown error'}`);
       }
-      
-      setWalletApi(api);
-      console.log('Eternl wallet enabled, connecting with Mesh...');
-      
-      // Connect with Mesh using the Eternl wallet name
-      await connect('eternl');
-      console.log('Wallet connection successful');
       
     } catch (error) {
       console.error('Error in handleConnect:', error);

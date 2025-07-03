@@ -114,7 +114,6 @@ export default function VerifyPage() {
           </p>
         </div>
 
-        {/* Verification Methods */}
         {verificationStatus === 'idle' && (
           <div className="grid md:grid-cols-2 gap-6 mb-8">
             {/* QR Scanner Card */}
@@ -182,35 +181,35 @@ export default function VerifyPage() {
 
         {/* Scanning Status */}
         {verificationStatus === 'error' && (
-  <Card className="border-red-200 bg-red-50 mb-8">
-    <CardContent className="text-center py-12">
-      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <XCircle className="w-8 h-8 text-red-600" />
-      </div>
-      <h3 className="text-xl font-semibold mb-2 text-red-800">Verification Failed</h3>
-      <p className="text-red-600 mb-2">
-        {drugInfo?.errorMessage || 'Unable to verify the batch.'}
-      </p>
-      <p className="text-sm text-red-500 mb-4">
-        Please check the batch ID and try again.
-      </p>
-      <div className="space-x-2">
-        <Button onClick={resetVerification} variant="outline" className="border-red-300">
-          Try Again
-        </Button>
-        <Button 
-          onClick={() => {
-            setVerificationStatus('idle');
-            setShowScanner(true);
-          }} 
-          variant="ghost"
-        >
-          Scan Again
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-)}
+          <Card className="border-red-200 bg-red-50 mb-8">
+            <CardContent className="text-center py-12">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <XCircle className="w-8 h-8 text-red-600" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2 text-red-800">Verification Failed</h3>
+              <p className="text-red-600 mb-2">
+                {drugInfo?.errorMessage || 'Unable to verify the batch.'}
+              </p>
+              <p className="text-sm text-red-500 mb-4">
+                Please check the batch ID and try again.
+              </p>
+              <div className="space-x-2">
+                <Button onClick={resetVerification} variant="outline" className="border-red-300">
+                  Try Again
+                </Button>
+                <Button 
+                  onClick={() => {
+                    setVerificationStatus('idle');
+                    setShowScanner(true);
+                  }} 
+                  variant="ghost"
+                >
+                  Scan Again
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Verification Result */}
         {(verificationStatus === 'verified' || verificationStatus === 'fake') && drugInfo && (
@@ -218,21 +217,6 @@ export default function VerifyPage() {
             drugInfo={drugInfo}
             onReset={resetVerification}
           />
-        )}
-
-        {/* Error State */}
-        {verificationStatus === 'error' && (
-          <Card className="border-red-200 bg-red-50 mb-8">
-            <CardContent className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-2 text-red-800">Verification Failed</h3>
-              <p className="text-red-600 mb-4">
-                Unable to verify the batch. Please check your connection and try again.
-              </p>
-              <Button onClick={resetVerification} variant="outline">
-                Try Again
-              </Button>
-            </CardContent>
-          </Card>
         )}
 
         {/* Quick Tips */}
@@ -263,36 +247,37 @@ export default function VerifyPage() {
               </div>
             </CardContent>
           </Card>
-          {/* Add this inside your component, maybe under the Quick Tips section */}
-{process.env.NODE_ENV === 'development' && (
-  <div className="mt-8 p-4 border rounded-lg bg-yellow-50">
-    <h3 className="font-semibold mb-2">Development Tools</h3>
-    <div className="space-y-2">
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={async () => {
-          const testId = 'TEST_GENUINE_1';
-          console.log('Testing verification with:', testId);
-          await handleScan(testId);
-        }}
-      >
-        Test with TEST_GENUINE_1
-      </Button>
-      <Button 
-        variant="outline" 
-        size="sm" 
-        onClick={async () => {
-          const testId = 'INVALID_ID';
-          console.log('Testing with invalid ID:', testId);
-          await handleScan(testId);
-        }}
-      >
-        Test with Invalid ID
-      </Button>
-    </div>
-  </div>
-)}
+        )}
+
+        {/* Development Tools */}
+        {process.env.NODE_ENV === 'development' && (
+          <div className="mt-8 p-4 border rounded-lg bg-yellow-50">
+            <h3 className="font-semibold mb-2">Development Tools</h3>
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  const testId = 'TEST_GENUINE_1';
+                  console.log('Testing verification with:', testId);
+                  await handleScan(testId);
+                }}
+              >
+                Test with TEST_GENUINE_1
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  const testId = 'INVALID_ID';
+                  console.log('Testing with invalid ID:', testId);
+                  await handleScan(testId);
+                }}
+              >
+                Test with Invalid ID
+              </Button>
+            </div>
+          </div>
         )}
       </div>
     </div>
