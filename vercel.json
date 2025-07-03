@@ -1,0 +1,13 @@
+{
+  "regions": ["iad1"],
+  "env": {
+    "DATABASE_URL": "@medichain-database-url",
+    "DIRECT_URL": "@medichain-direct-url",
+    "BLOCKFROST_TESTNET_KEY": "@blockfrost-testnet-key"
+  },
+  "functions": {
+    "app/api/**/*.ts": {
+      "maxDuration": 30
+    }
+  }
+}
