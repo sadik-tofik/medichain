@@ -12,17 +12,10 @@ const nextConfig = {
     serverComponentsExternalPackages: [
       '@prisma/client',
       '@neondatabase/serverless',
-      '@meshsdk/core',
-      '@emurgo/cardano-serialization-lib-browser',
       'bufferutil',
       'utf-8-validate',
     ],
-    webpackBuildWorker: true,
-    esmExternals: 'loose',
-    serverActions: true,
   },
-  // Remove the api config as it's not a valid top-level option
-  // API body parser can be configured in your API routes directly
   
   webpack: (config, { isServer }) => {
     // Handle WebAssembly files
@@ -44,14 +37,6 @@ const nextConfig = {
       buffer: require.resolve('buffer/'),
     };
 
-    // Add this only if you're using @emurgo/cardano-serialization-lib-browser
-    if (!isServer) {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@emurgo/cardano-serialization-lib-browser': require.resolve('@emurgo/cardano-serialization-lib-browser'),
-      };
-    }
-
     // Handle .wasm files
     config.module.rules.push({
       test: /\.wasm$/,
@@ -64,5 +49,4 @@ const nextConfig = {
   swcMinify: true,
 };
 
-// Export the config
 module.exports = nextConfig;

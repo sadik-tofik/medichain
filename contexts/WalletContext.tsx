@@ -1,16 +1,14 @@
-// contexts/WalletContext.tsx
 'use client';
 
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import type { BrowserWallet } from '@meshsdk/core';
 
 interface WalletContextType {
-  wallet: BrowserWallet | null;
+  wallet: any | null;
   connected: boolean;
   connecting: boolean;
   error: string | null;
   walletName: string | null;
-  connectWallet: (walletName?: string) => Promise<BrowserWallet | undefined>;
+  connectWallet: (walletName?: string) => Promise<any | undefined>;
   disconnectWallet: () => void;
   getBalance: () => Promise<string>;
   getNetworkId: () => Promise<number>;
@@ -20,7 +18,7 @@ interface WalletContextType {
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
-  const [wallet, setWallet] = useState<BrowserWallet | null>(null);
+  const [wallet, setWallet] = useState<any | null>(null);
   const [connected, setConnected] = useState(false);
   const [connecting, setConnecting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,27 +53,20 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     setError(null);
     
     try {
-      const { BrowserWallet } = await import('@meshsdk/core');
+      // Mock wallet connection for demo
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
-      if (!walletName) {
-        const wallets = await BrowserWallet.getInstalledWallets();
-        if (wallets.length === 0) {
-          throw new Error('No Cardano wallets found. Please install a wallet like Eternl or Nami.');
-        }
-        walletName = wallets[0].name;
-      }
+      const mockWallet = {
+        getBalance: () => Promise.resolve('1000000000'), // 1000 ADA in lovelace
+        getNetworkId: () => Promise.resolve(0), // Testnet
+      };
 
-      const wallet = await BrowserWallet.enable(walletName);
-      if (!wallet) {
-        throw new Error('Failed to enable wallet');
-      }
-
-      setWallet(wallet);
+      setWallet(mockWallet);
       setConnected(true);
-      setWalletName(walletName);
-      localStorage.setItem('connectedWallet', walletName);
+      setWalletName(walletName || 'Demo Wallet');
+      localStorage.setItem('connectedWallet', walletName || 'demo');
       
-      return wallet;
+      return mockWallet;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to connect to wallet';
       setError(errorMessage);

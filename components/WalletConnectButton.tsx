@@ -1,26 +1,15 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useWallet } from '@/contexts/WalletContext';
 import { Wallet, LogOut, Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 export function WalletConnectButton() {
-  const { 
-    connected, 
-    connecting, 
-    connectWallet, 
-    disconnectWallet, 
-    getBalance,
-    getNetworkId,
-    error: walletError,
-    walletName
-  } = useWallet();
-  
-  const [balance, setBalance] = useState<string>('0');
-  const [network, setNetwork] = useState<number | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
+  const [connected, setConnected] = useState(false);
+  const [connecting, setConnecting] = useState(false);
+  const [walletName, setWalletName] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   // Set isMounted to true on component mount
   useEffect(() => {
@@ -28,85 +17,26 @@ export function WalletConnectButton() {
     return () => setIsMounted(false);
   }, []);
 
-  // Update error state when walletError changes
-  useEffect(() => {
-    if (walletError) {
-      setError(walletError);
-      // Clear error after 5 seconds
-      const timer = setTimeout(() => setError(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [walletError]);
-
-  // Fetch wallet info when connected
-  useEffect(() => {
-    if (!connected) {
-      setBalance('0');
-      setNetwork(null);
-      return;
-    }
-
-    const fetchWalletInfo = async () => {
-      try {
-        const [balance, networkId] = await Promise.all([
-          getBalance(),
-          getNetworkId()
-        ]);
-        
-        if (isMounted) {
-          setBalance(balance);
-          setNetwork(networkId);
-        }
-      } catch (err) {
-        console.error('Error fetching wallet info:', err);
-        if (isMounted) {
-          setError('Failed to fetch wallet information');
-        }
-      }
-    };
-
-    fetchWalletInfo();
-    
-    // Set up an interval to update the balance every 30 seconds
-    const interval = setInterval(fetchWalletInfo, 30000);
-    
-    return () => clearInterval(interval);
-  }, [connected, getBalance, getNetworkId, isMounted]);
-
   const handleConnect = async () => {
+    setConnecting(true);
+    setError(null);
+    
     try {
-      setError(null);
-      await connectWallet();
+      // Simulate wallet connection for demo
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setConnected(true);
+      setWalletName('Demo Wallet');
     } catch (err) {
-      console.error('Connection error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to connect to wallet');
+      setError('Failed to connect wallet');
+    } finally {
+      setConnecting(false);
     }
   };
 
   const handleDisconnect = () => {
-    try {
-      disconnectWallet();
-      setBalance('0');
-      setNetwork(null);
-      setError(null);
-    } catch (err) {
-      console.error('Disconnection error:', err);
-      setError('Failed to disconnect wallet');
-    }
-  };
-
-  // Format ADA balance
-  const formatAda = (lovelace: string) => {
-    try {
-      const ada = parseFloat(lovelace) / 1000000;
-      return ada.toLocaleString(undefined, { 
-        minimumFractionDigits: 2, 
-        maximumFractionDigits: 6 
-      });
-    } catch (err) {
-      console.error('Error formatting ADA:', err);
-      return '0.00';
-    }
+    setConnected(false);
+    setWalletName(null);
+    setError(null);
   };
 
   // Show loading state if not mounted yet
@@ -159,12 +89,6 @@ export function WalletConnectButton() {
           Disconnect
         </Button>
       </div>
-      {balance !== '0' && (
-        <div className="text-xs text-gray-500">
-          Balance: {formatAda(balance)} ₳
-          {network !== null && ` • Network: ${network === 1 ? 'Mainnet' : network === 0 ? 'Testnet' : network}`}
-        </div>
-      )}
       {error && (
         <div className="text-xs text-red-500 max-w-[200px] truncate" title={error}>
           {error}
