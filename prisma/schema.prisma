@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Batch {
+  batchId         String @id @map("batch_id") @db.VarChar(64)
+  drugName        String @map("drug_name") @db.VarChar(200)
+  manufacturer    String @db.VarChar(100)
+  dosage          String @db.VarChar(50)
+  quantity        Int
+  expiryDate      DateTime @map("expiry_date") @db.Date
+  manufacturingDate DateTime @map("manufacturing_date") @db.Date
+  cardanoAssetId  String? @map("cardano_asset_id") @db.VarChar(56)
+  nftId           String? @map("nft_id") @db.VarChar(100)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  transactionHash String? @map("transaction_hash") @db.VarChar(64)
+  verifications   Verification[]
+  
+  @@map("batches")
+  @@index([manufacturer])
+  @@index([expiryDate])
+  @@index([createdAt])
+}
+
+model Verification {
+  id          Int      @id @default(autoincrement())
+  batchId     String   @map("batch_id") @db.VarChar(64)
+  isGenuine   Boolean  @map("is_genuine")
+  pharmacyId  String?  @map("pharmacy_id") @db.VarChar(64)
+  location    String?  @db.VarChar(200)
+  timestamp   DateTime @default(now())
+  
+  batch       Batch    @relation(fields: [batchId], references: [batchId], onDelete: Cascade)
+  
+  @@map("verifications")
+  @@index([batchId])
+  @@index([timestamp])
+  @@index([isGenuine])
+}
+
+model Manufacturer {
+  id              String   @id @default(cuid())
+  name            String   @db.VarChar(100)
+  licenseNumber   String   @unique @map("license_number") @db.VarChar(50)
+  contactEmail    String   @map("contact_email") @db.VarChar(100)
+  walletAddress   String?  @map("wallet_address") @db.VarChar(100)
+  isVerified      Boolean  @default(false) @map("is_verified")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  
+  @@map("manufacturers")
+  @@index([licenseNumber])
+  @@index([isVerified])
+}
