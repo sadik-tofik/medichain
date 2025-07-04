@@ -1,4 +1,4 @@
-import { Blockfrost, BlockFrostAPI } from '@blockfrost/blockfrost-js';
+import { BlockFrostAPI } from '@blockfrost/blockfrost-js';
 
 // Cardano blockchain integration utilities
 // This integrates with Blockfrost API for Cardano testnet
@@ -30,7 +30,7 @@ const getBlockfrostAPI = () => {
     console.warn('Blockfrost project ID not found. Using mock mode.');
     return null;
   }
-  return new Blockfrost({
+  return new BlockFrostAPI({
     projectId,
     network: 'preprod', // or 'mainnet' for mainnet
   });

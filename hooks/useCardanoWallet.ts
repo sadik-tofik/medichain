@@ -3,19 +3,6 @@
 import { useWallet } from '@meshsdk/react';
 import { useEffect, useState } from 'react';
 
-declare global {
-  interface Window {
-    cardano?: {
-      eternl?: {
-        enable: () => Promise<any>;
-        isEnabled: () => Promise<boolean>;
-        [key: string]: any;
-      };
-      [key: string]: any;
-    };
-  }
-}
-
 export function useCardanoWallet() {
   const { connect, connected, connecting, disconnect, name, wallet, error } = useWallet();
   const [isClient, setIsClient] = useState(false);
@@ -46,10 +33,12 @@ export function useCardanoWallet() {
       
       if (!isWalletAvailable) {
         errorMessage = 'Eternl wallet not detected. Please install the Eternl wallet extension.';
-      } else if (error.message.includes('user reject')) {
-        errorMessage = 'Connection was rejected. Please try again.';
-      } else if (error.message.includes('enable')) {
-        errorMessage = 'Failed to enable Eternl wallet. Please check your wallet extension.';
+      } else if (error instanceof Error) {
+        if (error.message.includes('user reject')) {
+          errorMessage = 'Connection was rejected. Please try again.';
+        } else if (error.message.includes('enable')) {
+          errorMessage = 'Failed to enable Eternl wallet. Please check your wallet extension.';
+        }
       }
       
       setConnectionError(errorMessage);
@@ -68,7 +57,7 @@ export function useCardanoWallet() {
       }
 
       // Check if the wallet is already enabled
-      const isEnabled = await window.cardano?.eternl?.isEnabled?.();
+      const isEnabled = await (window.cardano?.eternl as any)?.isEnabled?.();
       
       console.log('Enabling Eternl wallet...');
       try {
@@ -86,7 +75,12 @@ export function useCardanoWallet() {
         console.log('Wallet connection successful');
       } catch (enableError) {
         console.error('Error enabling Eternl wallet:', enableError);
-        throw new Error(`Failed to enable Eternl wallet: ${enableError?.message || 'Unknown error'}`);
+        const errorMessage = enableError instanceof Error 
+          ? enableError.message 
+          : typeof enableError === 'string'
+            ? enableError
+            : 'Unknown error enabling Eternl wallet';
+        throw new Error(`Failed to enable Eternl wallet: ${errorMessage}`);
       }
       
     } catch (error) {

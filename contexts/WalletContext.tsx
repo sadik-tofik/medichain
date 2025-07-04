@@ -1,16 +1,18 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { CardanoWallet, useWallet } from '@meshsdk/react';
-import { Wallet } from '@meshsdk/core';
+import { createContext, useContext, ReactNode } from 'react';
+import { useWallet } from '@meshsdk/react';
+
+// Let TypeScript infer the wallet type from useWallet
+type WalletType = ReturnType<typeof useWallet>['wallet'];
 
 type WalletContextType = {
-  wallet: Wallet | null;
+  wallet: WalletType;
   connected: boolean;
   connecting: boolean;
   name: string | undefined;
-  connect: () => Promise<void>;
-  disconnect: () => void;
+  connect: (walletName: string) => Promise<void>;
+  disconnect: () => Promise<void>;
 };
 
 const WalletContext = createContext<WalletContextType | undefined>(undefined);
@@ -25,8 +27,12 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         connected,
         connecting,
         name,
-        connect,
-        disconnect,
+        connect: async (walletName: string) => {
+          await connect(walletName);
+        },
+        disconnect: async () => {
+          await disconnect();
+        },
       }}
     >
       {children}

@@ -5,6 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { X, Camera, Flashlight } from 'lucide-react';
 
+declare global {
+  interface MediaTrackCapabilities {
+    torch?: boolean;
+  }
+}
+
 interface QrScannerProps {
   onScan: (result: string) => void;
   onClose: () => void;
@@ -58,7 +64,7 @@ export default function QrScanner({ onScan, onClose }: QrScannerProps) {
       if (capabilities.torch) {
         try {
           await track.applyConstraints({
-            advanced: [{ torch: !isFlashOn }]
+            advanced: [{ torch: !isFlashOn } as MediaTrackConstraintSet]
           });
           setIsFlashOn(!isFlashOn);
         } catch (error) {

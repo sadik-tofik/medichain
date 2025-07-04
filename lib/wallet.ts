@@ -38,9 +38,6 @@ export async function getEternlApi() {
   
   try {
     console.log('Enabling Eternl wallet...');
-    const isEnabled = await window.cardano.eternl.isEnabled?.();
-    console.log(`Eternl wallet is ${isEnabled ? 'already enabled' : 'not yet enabled'}`);
-    
     const api = await window.cardano.eternl.enable();
     
     if (!api) {
@@ -49,8 +46,9 @@ export async function getEternlApi() {
     
     console.log('Successfully connected to Eternl wallet');
     return api;
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Error in getEternlApi:', error);
-    throw new Error(`Failed to connect to Eternl wallet: ${error?.message || 'Unknown error'}`);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`Failed to connect to Eternl wallet: ${errorMessage}`);
   }
 }
